@@ -15,10 +15,11 @@ jobs:
         python-version: ["3.11", "3.12"]
     env:
       OMNIGENT_URL: http://127.0.0.1:6767
-      OMNIGENT_CLIENT_ID: ci-test
-      OMNIGENT_CLIENT_SECRET: ci-test
+      OMNIGENT_DEVICE_CLIENT_ID: ci-test
+      OMNIGENT_TOKEN_FILE: /tmp/omnigent-mcp-token.json
       MCP_AUTH_MODE: private
       MCP_HOST: 127.0.0.1
+      MCP_PORT: 8787
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -29,7 +30,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt pytest
       - name: Compile Python sources
-        run: python -m compileall -q client.py server.py tests
+        run: python -m compileall -q access_policy.py supabase_auth.py client.py server.py bootstrap_device.py tests
       - name: Import MCP server
         run: python -c "import server; print('MCP server import OK')"
       - name: Run unit tests
