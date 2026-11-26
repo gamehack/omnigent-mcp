@@ -1,0 +1,70 @@
+services:
+  omnigent-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: omnigent-mcp:local
+    container_name: omnigent-mcp
+    restart: unless-stopped
+    init: true
+    env_file:
+      - .env
+    environment:
+      MCP_HOST: 0.0.0.0
+      MCP_PORT: 8787
+      MCP_AUTH_MODE: supabase
+      OMNIGENT_URL: http://omnigent:8000
+      OMNIGENT_TOKEN_FILE: /data/device-token.json
+      OMNIGENT_PENDING_FILE: /data/device-pending.json
+      ACCESS_POLICY_FILE: /config/access-policy.json
+    volumes:
+      - omnigent-mcp-data:/data
+      - ./config/access-policy.json:/config/access-policy.json:ro
+    networks:
+      omnigent_internal:
+        aliases:
+          - omnigent-mcp
+      traefik:
+        aliases:
+          - omnigent-mcp
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik_default
+      - traefik.http.routers.omnigent-mcp.rule=Host(`omnigent-mcp.qjai.org`)
+      - traefik.http.routers.omnigent-mcp.entrypoints=websecure
+      - traefik.http.routers.omnigent-mcp.tls=true
+      - traefik.http.routers.omnigent-mcp.tls.certresolver=letsencrypt
+      - traefik.http.services.omnigent-mcp.loadbalancer.server.port=8787
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,noexec,nosuid,nodev
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import socket; s=socket.create_connection(('127.0.0.1',8787),3); s.close()"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+
+networks:
+  omnigent_internal:
+    external: true
+    name: omnigent_omnigent_default
+  traefik:
+    external: true
+    name: traefik_default
+
+volumes:
+  omnigent-mcp-data:
