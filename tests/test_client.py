@@ -1,64 +1,157 @@
+import json
+import stat
+
 import httpx
 import pytest
-from client import Omnigent, OmnigentError, identifier
 
-@pytest.fixture
-def mock():
-    calls=[]
-    def handler(r):
-        calls.append(r)
-        if r.url.path=='/oauth/token':
-            assert b'client_credentials' in r.content
-            return httpx.Response(200,json={'access_token':'fake','expires_in':3600})
-        assert r.headers['authorization']=='Bearer fake'
-        if r.url.path=='/v1/sessions' and r.method=='POST':
-            return httpx.Response(200,json={'id':'conv_1'})
-        if r.url.path=='/v1/sessions/conv_1':
-            return httpx.Response(200,json={'runner_online':True,'status':'idle'})
-        if r.url.path=='/v1/sessions/conv_off':
-            return httpx.Response(200,json={'runner_online':False})
-        return httpx.Response(200,json={'data':[]})
-    return Omnigent('https://example.test','client','secret',httpx.MockTransport(handler)),calls
+from client import (
+    DeviceAuthorizationRequired,
+    Omnigent,
+    OmnigentError,
+    identifier,
+)
 
-def test_list_and_reuse(mock):
-    api,calls=mock
-    api.request('GET','/v1/agents')
-    api.list_sessions(10,'cursor','test')
-    assert len([r for r in calls if r.url.path=='/oauth/token'])==1
-    assert calls[-1].url.params['limit']=='10'
-    assert calls[-1].url.params['after']=='cursor'
 
-def test_create_send(mock):
-    api,calls=mock
-    assert api.create('ag_1','host_1','/tmp/project','test')['session_url']=='https://example.test/c/conv_1'
-    assert api.send('conv_1','ping')['accepted']
-    assert b'input_text' in calls[-1].content
+def make_api(tmp_path, handler, *, secret=None, refresh_token="refresh-old"):
+    token_file = tmp_path / "device-token.json"
+    if refresh_token:
+        token_file.write_text(json.dumps({"refresh_token": refresh_token}), encoding="utf-8")
+        token_file.chmod(0o600)
+    api = Omnigent(
+        "https://omnigent.example.test",
+        "omnigent-mcp",
+        token_file,
+        device_client_secret=secret,
+        transport=httpx.MockTransport(handler),
+    )
+    return api, token_file
 
-def test_offline(mock):
-    api,calls=mock
-    with pytest.raises(OmnigentError): api.send('conv_off','ping')
-    assert not any(r.url.path.endswith('/events') for r in calls)
 
-def test_history_interrupt(mock):
-    api,calls=mock
-    api.history('conv_1',10,'abc')
-    assert calls[-1].url.params['after']=='abc'
-    api.interrupt('conv_1')
-    assert b'interrupt' in calls[-1].content
+def test_refresh_rotates_and_get_uses_bearer(tmp_path):
+    seen = []
 
-def test_invalid(mock):
-    api,calls=mock
-    with pytest.raises(ValueError): identifier('../admin')
-    with pytest.raises(ValueError): api.list_sessions(500)
-    with pytest.raises(ValueError): api.send('conv_1',' ')
-    assert not calls
+    def handler(request):
+        seen.append(request)
+        if request.url.path == "/oauth/token":
+            assert request.content.decode().find("grant_type=refresh_token") >= 0
+            return httpx.Response(
+                200,
+                json={"access_token": "access-1", "refresh_token": "refresh-new", "expires_in": 3600},
+            )
+        assert request.headers["authorization"] == "Bearer access-1"
+        return httpx.Response(200, json={"data": [{"id": "ag_1"}]})
 
-def test_no_write_retry():
-    seen=[]
-    def handler(r):
-        seen.append(r)
-        if r.url.path=='/oauth/token': return httpx.Response(200,json={'access_token':'fake','expires_in':3600})
-        return httpx.Response(401)
-    api=Omnigent('https://example.test','x','y',httpx.MockTransport(handler))
-    with pytest.raises(OmnigentError): api.interrupt('conv_1')
-    assert len(seen)==2
+    api, token_file = make_api(tmp_path, handler)
+    result = api.list_agents()
+
+    assert result["data"][0]["id"] == "ag_1"
+    assert json.loads(token_file.read_text())["refresh_token"] == "refresh-new"
+    assert stat.S_IMODE(token_file.stat().st_mode) == 0o600
+    assert len([r for r in seen if r.url.path == "/oauth/token"]) == 1
+
+
+def test_device_authorization_polls_and_persists_rotated_refresh(tmp_path, monkeypatch):
+    monkeypatch.setattr("client.time.sleep", lambda _: None)
+    poll_count = 0
+    seen_headers = []
+
+    def handler(request):
+        nonlocal poll_count
+        if request.url.path == "/oauth/device/authorize":
+            seen_headers.append(request.headers.get("x-omnigent-client-secret"))
+            return httpx.Response(
+                200,
+                json={
+                    "device_code": "device-secret",
+                    "user_code": "ABCD-EFGH",
+                    "verification_uri_complete": "https://omnigent.example.test/oauth/device?user_code=ABCD-EFGH",
+                    "expires_in": 600,
+                    "interval": 1,
+                },
+            )
+        if request.url.path == "/oauth/token":
+            poll_count += 1
+            seen_headers.append(request.headers.get("x-omnigent-client-secret"))
+            if poll_count == 1:
+                return httpx.Response(400, json={"error": "authorization_pending"})
+            return httpx.Response(
+                200,
+                json={"access_token": "device-access", "refresh_token": "device-refresh", "expires_in": 3600},
+            )
+        raise AssertionError(request.url.path)
+
+    api, token_file = make_api(tmp_path, handler, secret="shared-device-secret", refresh_token=None)
+    authorization = api.request_device_authorization()
+    assert authorization["user_code"] == "ABCD-EFGH"
+    assert authorization["verification_uri_complete"].startswith("https://")
+    api.poll_device_authorization(
+        authorization["device_code"],
+        authorization["interval"],
+        authorization["expires_in"],
+    )
+
+    assert json.loads(token_file.read_text())["refresh_token"] == "device-refresh"
+    assert stat.S_IMODE(token_file.stat().st_mode) == 0o600
+    assert poll_count == 2
+    assert seen_headers == ["shared-device-secret"] * 3
+
+
+def test_write_401_is_not_replayed(tmp_path):
+    event_posts = 0
+
+    def handler(request):
+        nonlocal event_posts
+        if request.url.path == "/oauth/token":
+            return httpx.Response(
+                200,
+                json={"access_token": "access-1", "refresh_token": "refresh-new", "expires_in": 3600},
+            )
+        if request.url.path.endswith("/events"):
+            event_posts += 1
+            return httpx.Response(401, json={"detail": "expired"})
+        raise AssertionError(request.url.path)
+
+    api, _ = make_api(tmp_path, handler)
+    with pytest.raises(OmnigentError):
+        api.interrupt("conv_1")
+    assert event_posts == 1
+
+
+def test_session_paths_and_pagination(tmp_path):
+    seen = []
+
+    def handler(request):
+        seen.append(request)
+        if request.url.path == "/oauth/token":
+            return httpx.Response(
+                200,
+                json={"access_token": "access-1", "refresh_token": "refresh-new", "expires_in": 3600},
+            )
+        return httpx.Response(200, json={"data": [], "last_id": "conv_2", "has_more": True})
+
+    api, _ = make_api(tmp_path, handler)
+    api.history("conv_1", limit=25, after="msg_1")
+    api.child_sessions("conv_1", limit=10, after="conv_child_1")
+    api.list_sessions(limit=15, after="conv_2", search_query="deploy")
+
+    history = next(r for r in seen if r.url.path == "/v1/sessions/conv_1/items")
+    children = next(r for r in seen if r.url.path == "/v1/sessions/conv_1/child_sessions")
+    sessions = next(r for r in seen if r.url.path == "/v1/sessions")
+
+    assert history.url.params["after"] == "msg_1"
+    assert children.url.params["after"] == "conv_child_1"
+    assert sessions.url.params["sort_by"] == "updated_at"
+    assert sessions.url.params["search_query"] == "deploy"
+
+
+def test_validation_rejects_bad_ids_and_limits(tmp_path):
+    def handler(request):
+        raise AssertionError("No HTTP request should be made")
+
+    api, _ = make_api(tmp_path, handler)
+    with pytest.raises(ValueError):
+        identifier("../admin")
+    with pytest.raises(ValueError):
+        api.list_sessions(0)
+    with pytest.raises(ValueError):
+        api.create("ag_1", "host_1", "relative/path", "test")
