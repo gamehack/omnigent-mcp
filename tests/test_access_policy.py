@@ -3,7 +3,7 @@ import json
 import pytest
 from mcp.server.auth.provider import AccessToken
 
-from access_policy import AccessPolicy
+from access_policy import AccessGrant, AccessPolicy
 
 
 def token(subject="user-1", client_id="chatgpt-client"):
@@ -63,13 +63,12 @@ def test_unknown_client_is_denied(tmp_path):
 
 def test_wildcards_are_rejected():
     with pytest.raises(ValueError):
-        AccessPolicy.load_from = None
         AccessPolicy(
             [
-                type("Grant", (), {
-                    "subject": "*",
-                    "client_id": "client",
-                    "scopes": frozenset({"agents:read"}),
-                })()
+                AccessGrant(
+                    subject="*",
+                    client_id="client",
+                    scopes=frozenset({"agents:read"}),
+                )
             ]
         )
