@@ -24,9 +24,10 @@ def _https_url(value: str) -> str:
         or not parsed.netloc
         or parsed.username
         or parsed.password
+        or parsed.query
         or parsed.fragment
     ):
-        raise ValueError("OAuth URLs must be absolute HTTPS URLs without credentials")
+        raise ValueError("OAuth URLs must be absolute HTTPS URLs without credentials or query strings")
     return value.rstrip("/")
 
 
