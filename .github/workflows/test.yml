@@ -1,0 +1,36 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    env:
+      OMNIGENT_URL: http://127.0.0.1:6767
+      OMNIGENT_CLIENT_ID: ci-test
+      OMNIGENT_CLIENT_SECRET: ci-test
+      MCP_AUTH_MODE: private
+      MCP_HOST: 127.0.0.1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pytest
+      - name: Compile Python sources
+        run: python -m compileall -q client.py server.py tests
+      - name: Import MCP server
+        run: python -c "import server; print('MCP server import OK')"
+      - name: Run unit tests
+        run: python -m pytest -q
