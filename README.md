@@ -7,10 +7,10 @@ An independent Model Context Protocol server for controlling Omnigent through it
 ChatGPT -> Supabase OAuth-protected MCP (Streamable HTTP) -> Omnigent MCP -> Omnigent REST API -> connected Hosts and Harnesses.
 
 The MCP service joins the existing Docker networks:
-- `omn​​igent_omn​​igent_default` to reach the Omnigent API at `http://omn​​igent:8000`.
+- `omnigent_omnigent_default` to reach the Omnigent API at `http://omnigent:8000`.
 - `traefik_default` to receive HTTPS traffic from Traefik.
 
-No host port is published. Traefik routes `https://omn​​igent-mcp.qjai.org/mcp` to container port 8787.
+No host port is published. Traefik routes `https://omnigent-mcp.qjai.org/mcp` to container port 8787.
 
 ## MCP tools
 
@@ -79,7 +79,7 @@ For unauthenticated local-only Inspector testing, set `MCP_AUTH_MODE=private` an
 
 ## Silicon Valley Docker deployment
 
-1. Clone this repository into `/opt/omn​​igent-mcp`.
+1. Clone this repository into `/opt/omnigent-mcp`.
 2. Copy `.env.example` to `.env`, set the Supabase project URL and resource URL, then chmod 600.
 3. Copy `config/access-policy.example.json` to `config/access-policy.json`. Leave `grants` empty until the ChatGPT OAuth client and user subject have been approved.
 4. Create the persistent data directory owned by UID/GID 10001:
