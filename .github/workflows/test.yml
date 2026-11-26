@@ -17,7 +17,6 @@ jobs:
       OMNIGENT_URL: http://127.0.0.1:6767
       OMNIGENT_DEVICE_CLIENT_ID: ci-test
       OMNIGENT_TOKEN_FILE: /tmp/omnigent-mcp-token.json
-      MCP_AUTH_MODE: private
       MCP_HOST: 127.0.0.1
       MCP_PORT: 8787
     steps:
@@ -31,7 +30,16 @@ jobs:
           pip install -r requirements.txt pytest
       - name: Compile Python sources
         run: python -m compileall -q access_policy.py supabase_auth.py client.py server.py bootstrap_device.py tests
-      - name: Import MCP server
-        run: python -c "import server; print('MCP server import OK')"
+      - name: Import private local MCP server
+        env:
+          MCP_AUTH_MODE: private
+        run: python -c "import server; print('Private MCP server import OK')"
+      - name: Import Supabase OAuth MCP server
+        env:
+          MCP_AUTH_MODE: supabase
+          SUPABASE_PROJECT_URL: https://project.example.test
+          MCP_RESOURCE_URL: https://omnigent-mcp.example.test/mcp
+          ACCESS_POLICY_FILE: config/access-policy.example.json
+        run: python -c "import server; print('Supabase OAuth MCP server import OK')"
       - name: Run unit tests
         run: python -m pytest -q
