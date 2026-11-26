@@ -18,7 +18,7 @@ services:
       OMNIGENT_PENDING_FILE: /data/device-pending.json
       ACCESS_POLICY_FILE: /config/access-policy.json
     volumes:
-      - omnigent-mcp-data:/data
+      - ./data:/data
       - ./config/access-policy.json:/config/access-policy.json:ro
     networks:
       omnigent_internal:
@@ -65,6 +65,3 @@ networks:
   traefik:
     external: true
     name: traefik_default
-
-volumes:
-  omnigent-mcp-data:
