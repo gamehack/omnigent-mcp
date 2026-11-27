@@ -157,7 +157,9 @@ def test_pkce_code_exchange_and_scope_enforcement(env):
     assert exchange(http, code).status_code == 400
     access = tokens["access_token"]
     tools = result(rpc(http, access))["result"]["tools"]
-    assert len(tools) == 10
+    assert len(tools) == 15
+    assert next(t for t in tools if t['name'] == 'read_api_operation')['_meta']['securitySchemes'][0]['scopes'] == ['omnigent:read']
+    assert next(t for t in tools if t['name'] == 'write_api_operation')['_meta']['securitySchemes'][0]['scopes'] == ['omnigent:write']
     assert next(t for t in tools if t["name"] == "get_profile")["_meta"]["openai/profile"] is True
     profile = result(rpc(http, access, "tools/call", {"name":"get_profile","arguments":{}}))["result"]
     assert SUBJECT in json.dumps(profile)

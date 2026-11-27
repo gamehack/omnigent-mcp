@@ -1,0 +1,1375 @@
+{
+  "upstream": "omnigent-ai/omnigent@v0.23.0",
+  "note": "Static source-derived candidates; execution requires the operation to exist in the running server OpenAPI. Availability depends on feature flags and account permissions.",
+  "operations": [
+    {
+      "id": "list_agents",
+      "domain": "agents",
+      "method": "GET",
+      "path": "/v1/agents"
+    },
+    {
+      "id": "get_agent",
+      "domain": "agents",
+      "method": "GET",
+      "path": "/v1/agents/{agent_id}"
+    },
+    {
+      "id": "get_agent_config",
+      "domain": "agents",
+      "method": "GET",
+      "path": "/v1/agents/{agent_id}/config"
+    },
+    {
+      "id": "install_agent",
+      "domain": "agents",
+      "method": "POST",
+      "path": "/v1/agents"
+    },
+    {
+      "id": "update_agent",
+      "domain": "agents",
+      "method": "PATCH",
+      "path": "/v1/agents/{agent_id}"
+    },
+    {
+      "id": "delete_agent",
+      "domain": "agents",
+      "method": "DELETE",
+      "path": "/v1/agents/{agent_id}"
+    },
+    {
+      "id": "list_hosts",
+      "domain": "hosts",
+      "method": "GET",
+      "path": "/v1/hosts"
+    },
+    {
+      "id": "get_host",
+      "domain": "hosts",
+      "method": "GET",
+      "path": "/v1/hosts/{host_id}"
+    },
+    {
+      "id": "get_host_model_options",
+      "domain": "hosts",
+      "method": "GET",
+      "path": "/v1/hosts/{host_id}/harnesses/{harness}/model-options"
+    },
+    {
+      "id": "launch_runner",
+      "domain": "hosts",
+      "method": "POST",
+      "path": "/v1/hosts/{host_id}/runners"
+    },
+    {
+      "id": "list_host_filesystem_root",
+      "domain": "hosts",
+      "method": "GET",
+      "path": "/v1/hosts/{host_id}/filesystem"
+    },
+    {
+      "id": "list_host_filesystem",
+      "domain": "hosts",
+      "method": "GET",
+      "path": "/v1/hosts/{host_id}/filesystem/{path:path}"
+    },
+    {
+      "id": "create_host_directory",
+      "domain": "hosts",
+      "method": "POST",
+      "path": "/v1/hosts/{host_id}/directories"
+    },
+    {
+      "id": "clone_host_repository",
+      "domain": "hosts",
+      "method": "POST",
+      "path": "/v1/hosts/{host_id}/repositories/clone"
+    },
+    {
+      "id": "refresh_host_harnesses",
+      "domain": "hosts",
+      "method": "POST",
+      "path": "/v1/hosts/{host_id}/harnesses/refresh"
+    },
+    {
+      "id": "refresh_host_harness_accounts",
+      "domain": "hosts",
+      "method": "POST",
+      "path": "/v1/hosts/{host_id}/harnesses/accounts/refresh"
+    },
+    {
+      "id": "start_host_harness_login",
+      "domain": "hosts",
+      "method": "POST",
+      "path": "/v1/hosts/{host_id}/harnesses/{harness}/login"
+    },
+    {
+      "id": "get_host_harness_login",
+      "domain": "hosts",
+      "method": "GET",
+      "path": "/v1/hosts/{host_id}/harnesses/{harness}/login/{login_id}"
+    },
+    {
+      "id": "cancel_host_harness_login",
+      "domain": "hosts",
+      "method": "DELETE",
+      "path": "/v1/hosts/{host_id}/harnesses/{harness}/login/{login_id}"
+    },
+    {
+      "id": "logout_host_harness",
+      "domain": "hosts",
+      "method": "POST",
+      "path": "/v1/hosts/{host_id}/harnesses/{harness}/logout"
+    },
+    {
+      "id": "install_host_harness",
+      "domain": "hosts",
+      "method": "POST",
+      "path": "/v1/hosts/{host_id}/harnesses/{harness}/install"
+    },
+    {
+      "id": "detect_host_credentials",
+      "domain": "hosts",
+      "method": "GET",
+      "path": "/v1/hosts/{host_id}/credentials/detected"
+    },
+    {
+      "id": "list_host_worktrees",
+      "domain": "hosts",
+      "method": "GET",
+      "path": "/v1/hosts/{host_id}/worktrees"
+    },
+    {
+      "id": "get_harness_startup",
+      "domain": "hosts",
+      "method": "GET",
+      "path": "/v1/hosts/{host_id}/harnesses/{harness}/startup"
+    },
+    {
+      "id": "get_host_plugins",
+      "domain": "hosts",
+      "method": "GET",
+      "path": "/v1/hosts/{host_id}/plugins"
+    },
+    {
+      "id": "list_harnesses",
+      "domain": "hosts",
+      "method": "GET",
+      "path": "/v1/harnesses"
+    },
+    {
+      "id": "create_orchestrated_host_session",
+      "domain": "sessions",
+      "method": "POST",
+      "path": "/v1/sessions/orchestrated/host"
+    },
+    {
+      "id": "create_orchestrated_session",
+      "domain": "sessions",
+      "method": "POST",
+      "path": "/v1/sessions/orchestrated"
+    },
+    {
+      "id": "create_session",
+      "domain": "sessions",
+      "method": "POST",
+      "path": "/v1/sessions"
+    },
+    {
+      "id": "list_session_projects",
+      "domain": "sessions",
+      "method": "GET",
+      "path": "/v1/sessions/projects"
+    },
+    {
+      "id": "set_session_read_state",
+      "domain": "sessions",
+      "method": "PUT",
+      "path": "/v1/sessions/{session_id}/read-state"
+    },
+    {
+      "id": "get_session",
+      "domain": "sessions",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}"
+    },
+    {
+      "id": "get_session_labels",
+      "domain": "sessions",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/labels"
+    },
+    {
+      "id": "list_sessions",
+      "domain": "sessions",
+      "method": "GET",
+      "path": "/v1/sessions"
+    },
+    {
+      "id": "rename_session_from_agent",
+      "domain": "sessions",
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/agent-title"
+    },
+    {
+      "id": "auto_title_session",
+      "domain": "sessions",
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/auto-title"
+    },
+    {
+      "id": "reset_session_model_override",
+      "domain": "sessions",
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/model-override/reset"
+    },
+    {
+      "id": "update_session",
+      "domain": "sessions",
+      "method": "PATCH",
+      "path": "/v1/sessions/{session_id}"
+    },
+    {
+      "id": "fork_session",
+      "domain": "sessions",
+      "method": "POST",
+      "path": "/v1/sessions/{source_id}/fork"
+    },
+    {
+      "id": "move_session_to_managed_host",
+      "domain": "sessions",
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/managed-host"
+    },
+    {
+      "id": "switch_session_agent",
+      "domain": "sessions",
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/switch-agent"
+    },
+    {
+      "id": "rewind_session",
+      "domain": "sessions",
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/rewind"
+    },
+    {
+      "id": "get_session_agent",
+      "domain": "sessions",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/agent"
+    },
+    {
+      "id": "get_session_agent_contents",
+      "domain": "sessions",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/agent/contents"
+    },
+    {
+      "id": "update_session_agent",
+      "domain": "sessions",
+      "method": "PUT",
+      "path": "/v1/sessions/{session_id}/agent"
+    },
+    {
+      "id": "list_session_items",
+      "domain": "sessions",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/items"
+    },
+    {
+      "id": "list_session_agent_costs",
+      "domain": "sessions",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/agent_costs"
+    },
+    {
+      "id": "list_child_sessions",
+      "domain": "sessions",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/child_sessions"
+    },
+    {
+      "id": "list_session_side_chats",
+      "domain": "sessions",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/side_chats"
+    },
+    {
+      "id": "post_session_event",
+      "domain": "sessions",
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/events"
+    },
+    {
+      "id": "delete_session",
+      "domain": "sessions",
+      "method": "DELETE",
+      "path": "/v1/sessions/{session_id}"
+    },
+    {
+      "id": "list_session_journal",
+      "domain": "sessions",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/journal"
+    },
+    {
+      "id": "append_session_journal_entry",
+      "domain": "sessions",
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/journal"
+    },
+    {
+      "id": "request_session_journal_input",
+      "domain": "sessions",
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/journal/input-requests"
+    },
+    {
+      "id": "get_codex_goal",
+      "domain": "sessions",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/codex_goal"
+    },
+    {
+      "id": "set_codex_goal",
+      "domain": "sessions",
+      "method": "PUT",
+      "path": "/v1/sessions/{session_id}/codex_goal"
+    },
+    {
+      "id": "update_codex_goal_status",
+      "domain": "sessions",
+      "method": "PATCH",
+      "path": "/v1/sessions/{session_id}/codex_goal/status"
+    },
+    {
+      "id": "clear_codex_goal",
+      "domain": "sessions",
+      "method": "DELETE",
+      "path": "/v1/sessions/{session_id}/codex_goal"
+    },
+    {
+      "id": "create_scheduled_task",
+      "domain": "automation",
+      "method": "POST",
+      "path": "/v1/scheduled-tasks"
+    },
+    {
+      "id": "list_scheduled_tasks",
+      "domain": "automation",
+      "method": "GET",
+      "path": "/v1/scheduled-tasks"
+    },
+    {
+      "id": "list_automation_inbox",
+      "domain": "automation",
+      "method": "GET",
+      "path": "/v1/scheduled-tasks/inbox"
+    },
+    {
+      "id": "list_shared_scheduled_tasks",
+      "domain": "automation",
+      "method": "GET",
+      "path": "/v1/scheduled-tasks/shared"
+    },
+    {
+      "id": "get_scheduled_task",
+      "domain": "automation",
+      "method": "GET",
+      "path": "/v1/scheduled-tasks/{scheduled_task_id}"
+    },
+    {
+      "id": "list_scheduled_task_runs",
+      "domain": "automation",
+      "method": "GET",
+      "path": "/v1/scheduled-tasks/{scheduled_task_id}/runs"
+    },
+    {
+      "id": "list_scheduled_task_run_steps",
+      "domain": "automation",
+      "method": "GET",
+      "path": "/v1/scheduled-tasks/{scheduled_task_id}/run-steps"
+    },
+    {
+      "id": "run_scheduled_task_now",
+      "domain": "automation",
+      "method": "POST",
+      "path": "/v1/scheduled-tasks/{scheduled_task_id}/run"
+    },
+    {
+      "id": "update_scheduled_task",
+      "domain": "automation",
+      "method": "PATCH",
+      "path": "/v1/scheduled-tasks/{scheduled_task_id}"
+    },
+    {
+      "id": "delete_scheduled_task",
+      "domain": "automation",
+      "method": "DELETE",
+      "path": "/v1/scheduled-tasks/{scheduled_task_id}"
+    },
+    {
+      "id": "list_workflows",
+      "domain": "automation",
+      "method": "GET",
+      "path": "/v1/workflows"
+    },
+    {
+      "id": "create_workflow",
+      "domain": "automation",
+      "method": "POST",
+      "path": "/v1/workflows"
+    },
+    {
+      "id": "get_workflow",
+      "domain": "automation",
+      "method": "GET",
+      "path": "/v1/workflows/{workflow_id}"
+    },
+    {
+      "id": "update_workflow",
+      "domain": "automation",
+      "method": "PATCH",
+      "path": "/v1/workflows/{workflow_id}"
+    },
+    {
+      "id": "delete_workflow",
+      "domain": "automation",
+      "method": "DELETE",
+      "path": "/v1/workflows/{workflow_id}"
+    },
+    {
+      "id": "list_workflow_runs",
+      "domain": "automation",
+      "method": "GET",
+      "path": "/v1/workflows/{workflow_id}/runs"
+    },
+    {
+      "id": "list_workflow_run_descendants",
+      "domain": "automation",
+      "method": "GET",
+      "path": "/v1/workflows/{workflow_id}/runs/{run_id}/descendant_runs"
+    },
+    {
+      "id": "create_project",
+      "domain": "projects",
+      "method": "POST",
+      "path": "/v1/projects"
+    },
+    {
+      "id": "list_projects",
+      "domain": "projects",
+      "method": "GET",
+      "path": "/v1/projects"
+    },
+    {
+      "id": "get_project_order",
+      "domain": "projects",
+      "method": "GET",
+      "path": "/v1/projects/order"
+    },
+    {
+      "id": "save_project_order",
+      "domain": "projects",
+      "method": "PUT",
+      "path": "/v1/projects/order"
+    },
+    {
+      "id": "get_project",
+      "domain": "projects",
+      "method": "GET",
+      "path": "/v1/projects/{project_id}"
+    },
+    {
+      "id": "update_project",
+      "domain": "projects",
+      "method": "PATCH",
+      "path": "/v1/projects/{project_id}"
+    },
+    {
+      "id": "delete_project",
+      "domain": "projects",
+      "method": "DELETE",
+      "path": "/v1/projects/{project_id}"
+    },
+    {
+      "id": "list_session_resources",
+      "domain": "resources",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/resources"
+    },
+    {
+      "id": "list_or_read_session_environments",
+      "domain": "resources",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/resources/environments"
+    },
+    {
+      "id": "get_session_environment",
+      "domain": "resources",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/resources/environments/{environment_id}"
+    },
+    {
+      "id": "list_session_terminals",
+      "domain": "resources",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/resources/terminals"
+    },
+    {
+      "id": "create_session_terminal",
+      "domain": "resources",
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/resources/terminals"
+    },
+    {
+      "id": "get_session_terminal",
+      "domain": "resources",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/resources/terminals/{terminal_id}"
+    },
+    {
+      "id": "transfer_session_terminal",
+      "domain": "resources",
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/resources/terminals/{terminal_id}/transfer"
+    },
+    {
+      "id": "delete_session_terminal",
+      "domain": "resources",
+      "method": "DELETE",
+      "path": "/v1/sessions/{session_id}/resources/terminals/{terminal_id}"
+    },
+    {
+      "id": "list_session_files",
+      "domain": "resources",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/resources/files"
+    },
+    {
+      "id": "upload_session_file",
+      "domain": "resources",
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/resources/files"
+    },
+    {
+      "id": "get_session_file",
+      "domain": "resources",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/resources/files/{file_id}"
+    },
+    {
+      "id": "get_session_file_content",
+      "domain": "resources",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/resources/files/{file_id}/content"
+    },
+    {
+      "id": "delete_session_file",
+      "domain": "resources",
+      "method": "DELETE",
+      "path": "/v1/sessions/{session_id}/resources/files/{file_id}"
+    },
+    {
+      "id": "copy_session_files",
+      "domain": "resources",
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/resources/files:copy"
+    },
+    {
+      "id": "list_environment_root",
+      "domain": "resources",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/resources/environments/{environment_id}/filesystem"
+    },
+    {
+      "id": "search_environment_content",
+      "domain": "resources",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/resources/environments/{environment_id}/content-search"
+    },
+    {
+      "id": "search_environment_files",
+      "domain": "resources",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/resources/environments/{environment_id}/search"
+    },
+    {
+      "id": "search_environment_files_under",
+      "domain": "resources",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/resources/environments/{environment_id}/search/{path:path}"
+    },
+    {
+      "id": "list_environment_changes",
+      "domain": "resources",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/resources/environments/{environment_id}/changes"
+    },
+    {
+      "id": "read_environment_file_diff",
+      "domain": "resources",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/resources/environments/{environment_id}/diff/{relative_path:path}"
+    },
+    {
+      "id": "write_environment_file",
+      "domain": "resources",
+      "method": "PUT",
+      "path": "/v1/sessions/{session_id}/resources/environments"
+    },
+    {
+      "id": "edit_environment_file",
+      "domain": "resources",
+      "method": "PATCH",
+      "path": "/v1/sessions/{session_id}/resources/environments"
+    },
+    {
+      "id": "delete_environment_path",
+      "domain": "resources",
+      "method": "DELETE",
+      "path": "/v1/sessions/{session_id}/resources/environments"
+    },
+    {
+      "id": "get_session_resource",
+      "domain": "resources",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/resources/{resource_id}"
+    },
+    {
+      "id": "read_github_pr_diff",
+      "domain": "github",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/resources/github/diff"
+    },
+    {
+      "id": "read_github_commit_diff",
+      "domain": "github",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/resources/github/commit-diff"
+    },
+    {
+      "id": "read_github_compare_diff",
+      "domain": "github",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/resources/github/compare-diff"
+    },
+    {
+      "id": "read_github_file_diff",
+      "domain": "github",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/resources/github/diff/{relative_path:path}"
+    },
+    {
+      "id": "list_session_pull_requests",
+      "domain": "github",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/pull-requests"
+    },
+    {
+      "id": "unlink_session_pull_request",
+      "domain": "github",
+      "method": "DELETE",
+      "path": "/v1/sessions/{session_id}/pull-requests"
+    },
+    {
+      "id": "get_session_repository_branches",
+      "domain": "github",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/resources/repository-branches"
+    },
+    {
+      "id": "get_session_github",
+      "domain": "github",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/resources/github"
+    },
+    {
+      "id": "list_session_github_changes",
+      "domain": "github",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/resources/github/changes"
+    },
+    {
+      "id": "list_session_github_commits",
+      "domain": "github",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/resources/github/commits"
+    },
+    {
+      "id": "update_orchestrated_github_pr",
+      "domain": "github",
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/resources/github/prs/orchestrated"
+    },
+    {
+      "id": "update_session_github_pr",
+      "domain": "github",
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/resources/github/prs"
+    },
+    {
+      "id": "set_session_github_preference",
+      "domain": "github",
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/resources/github/preferences"
+    },
+    {
+      "id": "list_session_github_labels",
+      "domain": "github",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/resources/github/labels"
+    },
+    {
+      "id": "update_session_github_labels",
+      "domain": "github",
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/resources/github/labels"
+    },
+    {
+      "id": "get_session_github_merge_options",
+      "domain": "github",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/resources/github/merge-options"
+    },
+    {
+      "id": "merge_session_github_pr",
+      "domain": "github",
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/resources/github/merge"
+    },
+    {
+      "id": "merge_session_github_pr_as",
+      "domain": "github",
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/resources/github/merge-as"
+    },
+    {
+      "id": "disable_session_github_auto_merge",
+      "domain": "github",
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/resources/github/disable-auto-merge"
+    },
+    {
+      "id": "list_session_github_reviewers",
+      "domain": "github",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/resources/github/reviewers"
+    },
+    {
+      "id": "update_session_github_reviewers",
+      "domain": "github",
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/resources/github/reviewers"
+    },
+    {
+      "id": "get_session_review_threads",
+      "domain": "github",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/resources/github/review-threads"
+    },
+    {
+      "id": "get_session_review_thread_comments",
+      "domain": "github",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/resources/github/review-threads/{thread_id}/comments"
+    },
+    {
+      "id": "create_session_review_thread",
+      "domain": "github",
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/resources/github/review-threads"
+    },
+    {
+      "id": "reply_to_session_review_thread",
+      "domain": "github",
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/resources/github/review-threads/{thread_id}/replies"
+    },
+    {
+      "id": "create_session_github_comment",
+      "domain": "github",
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/resources/github/comments"
+    },
+    {
+      "id": "update_session_github_details",
+      "domain": "github",
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/resources/github/details"
+    },
+    {
+      "id": "upload_session_github_attachment",
+      "domain": "github",
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/resources/github/attachments"
+    },
+    {
+      "id": "list_connected_github_repositories",
+      "domain": "github",
+      "method": "GET",
+      "path": "/v1/connections/github/repos"
+    },
+    {
+      "id": "list_connected_github_branches",
+      "domain": "github",
+      "method": "GET",
+      "path": "/v1/connections/github/repos/{owner}/{repo}/branches"
+    },
+    {
+      "id": "list_skills",
+      "domain": "mcp_skills",
+      "method": "GET",
+      "path": "/v1/skills"
+    },
+    {
+      "id": "get_skill_content",
+      "domain": "mcp_skills",
+      "method": "GET",
+      "path": "/v1/hosts/{host_id}/harnesses/{harness}/skills/{name:path}"
+    },
+    {
+      "id": "list_host_mcp_servers",
+      "domain": "mcp_skills",
+      "method": "GET",
+      "path": "/v1/hosts/{host_id}/mcp-servers"
+    },
+    {
+      "id": "set_host_mcp_server_enabled",
+      "domain": "mcp_skills",
+      "method": "PUT",
+      "path": "/v1/hosts/{host_id}/mcp-servers/enabled"
+    },
+    {
+      "id": "list_host_mcp_tools",
+      "domain": "mcp_skills",
+      "method": "POST",
+      "path": "/v1/hosts/{host_id}/mcp-servers/tools"
+    },
+    {
+      "id": "list_mcp_registry_services",
+      "domain": "mcp_skills",
+      "method": "GET",
+      "path": "/v1/mcp-registry/services"
+    },
+    {
+      "id": "disconnect_mcp_registry_service",
+      "domain": "mcp_skills",
+      "method": "DELETE",
+      "path": "/v1/mcp-registry/services/{service_id}/connection"
+    },
+    {
+      "id": "test_mcp_registry_service",
+      "domain": "mcp_skills",
+      "method": "POST",
+      "path": "/v1/mcp-registry/services/{service_id}/test"
+    },
+    {
+      "id": "list_session_mcp_servers",
+      "domain": "mcp_skills",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/agent/mcp-servers"
+    },
+    {
+      "id": "list_live_session_mcp_servers",
+      "domain": "mcp_skills",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/live-mcp-servers"
+    },
+    {
+      "id": "reconnect_session_mcp_server",
+      "domain": "mcp_skills",
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/live-mcp-servers/reconnect"
+    },
+    {
+      "id": "create_session_mcp_server",
+      "domain": "mcp_skills",
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/agent/mcp-servers"
+    },
+    {
+      "id": "update_session_mcp_server",
+      "domain": "mcp_skills",
+      "method": "PUT",
+      "path": "/v1/sessions/{session_id}/agent/mcp-servers/{server_name}"
+    },
+    {
+      "id": "delete_session_mcp_server",
+      "domain": "mcp_skills",
+      "method": "DELETE",
+      "path": "/v1/sessions/{session_id}/agent/mcp-servers/{server_name}"
+    },
+    {
+      "id": "list_extensions",
+      "domain": "mcp_skills",
+      "method": "GET",
+      "path": "/v1/extensions"
+    },
+    {
+      "id": "get_extension_diagnostics",
+      "domain": "mcp_skills",
+      "method": "GET",
+      "path": "/v1/extensions/diagnostics"
+    },
+    {
+      "id": "get_extension",
+      "domain": "mcp_skills",
+      "method": "GET",
+      "path": "/v1/extensions/{extension_id}"
+    },
+    {
+      "id": "get_extension_asset",
+      "domain": "mcp_skills",
+      "method": "GET",
+      "path": "/v1/extensions/{extension_id}/assets/{digest}/{asset_name}"
+    },
+    {
+      "id": "get_elicitation",
+      "domain": "policy",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/elicitations/{elicitation_id}"
+    },
+    {
+      "id": "resolve_elicitation",
+      "domain": "policy",
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/elicitations/{elicitation_id}/resolve"
+    },
+    {
+      "id": "create_session_policy",
+      "domain": "policy",
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/policies"
+    },
+    {
+      "id": "list_session_policies",
+      "domain": "policy",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/policies"
+    },
+    {
+      "id": "get_session_policy",
+      "domain": "policy",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/policies/{policy_id}"
+    },
+    {
+      "id": "update_session_policy",
+      "domain": "policy",
+      "method": "PATCH",
+      "path": "/v1/sessions/{session_id}/policies/{policy_id}"
+    },
+    {
+      "id": "delete_session_policy",
+      "domain": "policy",
+      "method": "DELETE",
+      "path": "/v1/sessions/{session_id}/policies/{policy_id}"
+    },
+    {
+      "id": "create_default_policy",
+      "domain": "policy",
+      "method": "POST",
+      "path": "/v1/policies"
+    },
+    {
+      "id": "list_default_policies",
+      "domain": "policy",
+      "method": "GET",
+      "path": "/v1/policies"
+    },
+    {
+      "id": "get_default_policy",
+      "domain": "policy",
+      "method": "GET",
+      "path": "/v1/policies/{policy_id}"
+    },
+    {
+      "id": "update_default_policy",
+      "domain": "policy",
+      "method": "PATCH",
+      "path": "/v1/policies/{policy_id}"
+    },
+    {
+      "id": "delete_default_policy",
+      "domain": "policy",
+      "method": "DELETE",
+      "path": "/v1/policies/{policy_id}"
+    },
+    {
+      "id": "list_policy_registry",
+      "domain": "policy",
+      "method": "GET",
+      "path": "/v1/policy-registry"
+    },
+    {
+      "id": "grant_session_permission",
+      "domain": "policy",
+      "method": "PUT",
+      "path": "/v1/sessions/{session_id}/permissions"
+    },
+    {
+      "id": "revoke_session_permission",
+      "domain": "policy",
+      "method": "DELETE",
+      "path": "/v1/sessions/{session_id}/permissions/{target_user_id}"
+    },
+    {
+      "id": "get_session_owner",
+      "domain": "policy",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/owner"
+    },
+    {
+      "id": "list_session_permissions",
+      "domain": "policy",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/permissions"
+    },
+    {
+      "id": "list_scheduled_task_permissions",
+      "domain": "policy",
+      "method": "GET",
+      "path": "/v1/scheduled-tasks/{scheduled_task_id}/permissions"
+    },
+    {
+      "id": "grant_scheduled_task_permission",
+      "domain": "policy",
+      "method": "PUT",
+      "path": "/v1/scheduled-tasks/{scheduled_task_id}/permissions"
+    },
+    {
+      "id": "get_sharing",
+      "domain": "policy",
+      "method": "GET",
+      "path": "/v1/sharing"
+    },
+    {
+      "id": "set_sharing",
+      "domain": "policy",
+      "method": "PUT",
+      "path": "/v1/sharing"
+    },
+    {
+      "id": "write_memory_entry",
+      "domain": "memory",
+      "method": "PUT",
+      "path": "/v1/memory/entry"
+    },
+    {
+      "id": "get_memory_entry",
+      "domain": "memory",
+      "method": "GET",
+      "path": "/v1/memory/entry"
+    },
+    {
+      "id": "delete_memory_entry",
+      "domain": "memory",
+      "method": "DELETE",
+      "path": "/v1/memory/entry"
+    },
+    {
+      "id": "list_memory_entries",
+      "domain": "memory",
+      "method": "GET",
+      "path": "/v1/memory/entries"
+    },
+    {
+      "id": "search_memory_entries",
+      "domain": "memory",
+      "method": "POST",
+      "path": "/v1/memory/search"
+    },
+    {
+      "id": "add_session_comment",
+      "domain": "memory",
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/comments"
+    },
+    {
+      "id": "list_session_comments",
+      "domain": "memory",
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/comments"
+    },
+    {
+      "id": "update_session_comment",
+      "domain": "memory",
+      "method": "PATCH",
+      "path": "/v1/sessions/{session_id}/comments/{comment_id}"
+    },
+    {
+      "id": "delete_session_comment",
+      "domain": "memory",
+      "method": "DELETE",
+      "path": "/v1/sessions/{session_id}/comments/{comment_id}"
+    },
+    {
+      "id": "send_comments_to_agent",
+      "domain": "memory",
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/comments/send"
+    },
+    {
+      "id": "create_inbox_item",
+      "domain": "memory",
+      "method": "POST",
+      "path": "/v1/inbox/items"
+    },
+    {
+      "id": "list_inbox_items",
+      "domain": "memory",
+      "method": "GET",
+      "path": "/v1/inbox/items"
+    },
+    {
+      "id": "update_inbox_item",
+      "domain": "memory",
+      "method": "PATCH",
+      "path": "/v1/inbox/items/{item_id}"
+    },
+    {
+      "id": "read_preferences",
+      "domain": "settings",
+      "method": "GET",
+      "path": "/v1/preferences/shared"
+    },
+    {
+      "id": "apply_preference",
+      "domain": "settings",
+      "method": "POST",
+      "path": "/v1/preferences/shared/operations"
+    },
+    {
+      "id": "read_preferences_configuration",
+      "domain": "settings",
+      "method": "GET",
+      "path": "/v1/preferences/configuration"
+    },
+    {
+      "id": "save_preferences_configuration",
+      "domain": "settings",
+      "method": "PUT",
+      "path": "/v1/preferences/configuration"
+    },
+    {
+      "id": "get_session_title_instructions",
+      "domain": "settings",
+      "method": "GET",
+      "path": "/v1/settings/session-title-instructions"
+    },
+    {
+      "id": "save_session_title_instructions",
+      "domain": "settings",
+      "method": "PUT",
+      "path": "/v1/settings/session-title-instructions"
+    },
+    {
+      "id": "get_proactive_agent_prompt",
+      "domain": "settings",
+      "method": "GET",
+      "path": "/v1/proactive-agent/prompt"
+    },
+    {
+      "id": "set_proactive_agent_prompt",
+      "domain": "settings",
+      "method": "PUT",
+      "path": "/v1/proactive-agent/prompt"
+    },
+    {
+      "id": "run_proactive_agent_now",
+      "domain": "settings",
+      "method": "POST",
+      "path": "/v1/proactive-agent/runs"
+    },
+    {
+      "id": "get_proactive_agent_settings",
+      "domain": "settings",
+      "method": "GET",
+      "path": "/v1/proactive-agent/settings"
+    },
+    {
+      "id": "set_proactive_user_setting",
+      "domain": "settings",
+      "method": "PUT",
+      "path": "/v1/proactive-agent/settings/me"
+    },
+    {
+      "id": "set_proactive_workspace_setting",
+      "domain": "settings",
+      "method": "PUT",
+      "path": "/v1/proactive-agent/settings/workspace"
+    },
+    {
+      "id": "list_sandbox_profiles",
+      "domain": "settings",
+      "method": "GET",
+      "path": "/v1/sandbox-profiles"
+    },
+    {
+      "id": "list_sandbox_model_options",
+      "domain": "settings",
+      "method": "GET",
+      "path": "/v1/sandbox-providers/{provider}/harnesses/{harness}/model-options"
+    },
+    {
+      "id": "import_session",
+      "domain": "settings",
+      "method": "POST",
+      "path": "/v1/imports"
+    },
+    {
+      "id": "import_local_sessions",
+      "domain": "settings",
+      "method": "POST",
+      "path": "/v1/imports/local"
+    },
+    {
+      "id": "get_usage",
+      "domain": "settings",
+      "method": "GET",
+      "path": "/v1/usage"
+    },
+    {
+      "id": "get_server_info",
+      "domain": "settings",
+      "method": "GET",
+      "path": "/v1/info"
+    },
+    {
+      "id": "get_omnigent_identity",
+      "domain": "settings",
+      "method": "GET",
+      "path": "/v1/me"
+    },
+    {
+      "id": "get_branding_logo",
+      "domain": "settings",
+      "method": "GET",
+      "path": "/v1/branding/logo/{variant}"
+    },
+    {
+      "id": "get_github_connection_status",
+      "domain": "settings",
+      "method": "GET",
+      "path": "/v1/connections/github/status"
+    },
+    {
+      "id": "disconnect_github_connection",
+      "domain": "settings",
+      "method": "POST",
+      "path": "/v1/connections/github/disconnect"
+    },
+    {
+      "id": "get_databricks_connection_status",
+      "domain": "settings",
+      "method": "GET",
+      "path": "/v1/connections/databricks/status"
+    },
+    {
+      "id": "disconnect_databricks_connection",
+      "domain": "settings",
+      "method": "POST",
+      "path": "/v1/connections/databricks/disconnect"
+    }
+  ],
+  "excluded": [
+    {
+      "method": "POST",
+      "path": "/v1/hosts/{host_id}/harnesses/{harness}/credential",
+      "reason": "Secret entry via Omnigent UI/CLI, not model arguments."
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/mcp-registry/services/{service_id}/connection",
+      "reason": "Secret entry via native UI."
+    },
+    {
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/sign-in-link",
+      "reason": "Bearer sign-in link must not be returned to the model."
+    },
+    {
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/workspace/direct-access",
+      "reason": "Direct access token issuance."
+    },
+    {
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/workspace/{service}/{method}",
+      "reason": "Unbounded workspace RPC; use the explicit file/resource/session tools."
+    },
+    {
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/resources/environments/{environment_id}/shell",
+      "reason": "Arbitrary shell is not exposed; use normal authorized agent sessions."
+    },
+    {
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/mcp",
+      "reason": "Arbitrary nested MCP proxy."
+    },
+    {
+      "method": "GET",
+      "path": "/v1/sessions/{session_id}/stream",
+      "reason": "Long-running SSE; use snapshot and paginated items."
+    },
+    {
+      "method": "POST",
+      "path": "/v1/imports/local/stream",
+      "reason": "Long-running SSE; use non-streaming local import."
+    },
+    {
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/ui/open-file",
+      "reason": "Native browser/UI operation."
+    },
+    {
+      "method": "WS",
+      "path": "/v1/sessions/updates",
+      "reason": "Live WS transport, not a business operation."
+    },
+    {
+      "method": "WS",
+      "path": "/v1/dictation/stream",
+      "reason": "Live audio transport."
+    },
+    {
+      "method": "*",
+      "path": "/v1/sessions/{session_id}/browser/*",
+      "reason": "Browser renderer callbacks."
+    },
+    {
+      "method": "*",
+      "path": "/v1/sessions/{session_id}/hooks/*",
+      "reason": "Runner/harness callbacks; do not impersonate runners."
+    },
+    {
+      "method": "POST",
+      "path": "/v1/sessions/{session_id}/policies/evaluate",
+      "reason": "Internal harness hook."
+    },
+    {
+      "method": "*",
+      "path": "/auth/*",
+      "reason": "Account login, password, invite, and administration are handled natively."
+    },
+    {
+      "method": "*",
+      "path": "/oauth/*",
+      "reason": "Backend device authorization handled by bootstrap CLI."
+    },
+    {
+      "method": "*",
+      "path": "/v1/connections/{provider}/connect or callback",
+      "reason": "Interactive provider OAuth handled natively."
+    },
+    {
+      "method": "*",
+      "path": "Host/runner tunnels, host credential vending, terminal attachment, inference and MCP gateway protocols",
+      "reason": "Internal transport/credential channels, not exposed as user business operations."
+    }
+  ]
+}

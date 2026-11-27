@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import json
 import os
 import re
@@ -275,6 +276,75 @@ class Omnigent:
             ) from None
         except ValueError:
             raise OmnigentError("Omnigent returned invalid JSON") from None
+
+    def request_data(self, method: str, path: str, *, params: dict | None = None,
+                     body=None, files=None, max_bytes: int = 350_000) -> dict:
+        """Bounded response transport for the fixed business API catalog.
+
+        Only internal callers may supply an already-resolved path. The catalog
+        validates user-selected operation IDs and all path arguments first.
+        """
+        if not (path.startswith("/v1/") or path == "/openapi.json") or "?" in path or "#" in path or "\\" in path:
+            raise ValueError("Invalid Omnigent API path")
+        if method not in ("GET", "POST", "PUT", "PATCH", "DELETE"):
+            raise ValueError("Invalid Omnigent API method")
+        if not 1 <= max_bytes <= 16 * 1024 * 1024:
+            raise ValueError("Invalid response size limit")
+        if body is not None and files is not None:
+            raise ValueError("JSON and multipart are mutually exclusive")
+        headers = {"Accept": "application/json, text/plain, application/octet-stream",
+                   "Authorization": "Bearer " + self._token()}
+        kwargs = {"params": params, "headers": headers}
+        if body is not None:
+            kwargs["json"] = body
+        if files is not None:
+            kwargs["files"] = files
+        for attempt in range(2 if method == "GET" else 1):
+            try:
+                with self.http.stream(method, self.base + path, **kwargs) as response:
+                    if response.status_code == 401 and method == "GET" and attempt == 0:
+                        # Retry only a read. A concurrent refresh might already
+                        # have replaced the rejected access token.
+                        pass
+                    else:
+                        if not response.is_success:
+                            raise OmnigentError(
+                                f"Omnigent API returned HTTP {response.status_code}; "
+                                "check authorization, feature availability and request schema"
+                            )
+                        media = response.headers.get("content-type", "").split(";")[0].strip().lower()
+                        if media == "text/event-stream":
+                            raise OmnigentError("Live SSE is not supported; use a snapshot or paginated history")
+                        data = bytearray()
+                        for chunk in response.iter_bytes():
+                            if len(data) + len(chunk) > max_bytes:
+                                raise OmnigentError("Response exceeds MCP output limit; narrow or paginate the operation")
+                            data.extend(chunk)
+                        raw = bytes(data)
+                        if not raw:
+                            payload, encoding = None, "json"
+                        elif media == "application/json" or media.endswith("+json"):
+                            try:
+                                payload, encoding = json.loads(raw), "json"
+                            except ValueError:
+                                raise OmnigentError("Omnigent returned invalid JSON") from None
+                        elif media.startswith("text/") or media in ("application/xml","application/yaml","application/x-yaml"):
+                            payload, encoding = raw.decode("utf-8", errors="replace"), "text"
+                        else:
+                            payload, encoding = base64.b64encode(raw).decode("ascii"), "base64"
+                        return {"status": response.status_code, "content_type": media,
+                                "encoding": encoding, "data": payload}
+                with self._lock:
+                    rejected = headers["Authorization"][7:]
+                    if self._access_token == rejected:
+                        self._access_token = None
+                        self._access_expires_at = 0
+                    headers["Authorization"] = "Bearer " + self._token()
+            except httpx.HTTPError:
+                raise OmnigentError(
+                    "Omnigent network failure; check operation state before retrying a write"
+                ) from None
+        raise OmnigentError("Omnigent authorization failed")
 
     def session_path(self, session_id: str, suffix: str = "") -> str:
         return "/v1/sessions/" + identifier(session_id) + suffix

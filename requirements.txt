@@ -3,3 +3,4 @@ httpx>=0.27,<1
 argon2-cffi>=23.1,<26
 uvicorn>=0.30,<1
 starlette>=0.37,<1
+jsonschema>=4.23,<5
