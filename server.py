@@ -5,6 +5,8 @@ import json
 import os
 
 from mcp.server.auth.middleware.auth_context import get_access_token
+from mcp.server.auth.handlers.metadata import MetadataHandler
+from mcp.server.auth.routes import build_metadata, cors_middleware, create_protected_resource_routes
 from mcp.server.auth.settings import AuthSettings, ClientRegistrationOptions, RevocationOptions
 from mcp.server.mcpserver import MCPServer
 from mcp.types import ToolAnnotations
@@ -182,6 +184,29 @@ mcp_app = mcp.streamable_http_app(
 # Keep the SDK's ASGI lifespan intact; do not hide it in a mounted app.
 mcp_app.router.routes.insert(0, Route("/health", health, methods=["GET"]))
 if provider is not None:
+    # SDK metadata defaults include basic auth. This installation registers only
+    # client_secret_post; advertise the exact method to avoid client ambiguity.
+    metadata = build_metadata(
+        auth_settings.issuer_url, None, auth_settings.client_registration_options,
+        auth_settings.revocation_options,
+    )
+    metadata.token_endpoint_auth_methods_supported = ["client_secret_post"]
+    metadata.revocation_endpoint_auth_methods_supported = ["client_secret_post"]
+    discovery = Route(
+        "/.well-known/oauth-authorization-server",
+        endpoint=cors_middleware(MetadataHandler(metadata).handle, ["GET", "OPTIONS"]),
+        methods=["GET", "OPTIONS"],
+    )
+    protected = create_protected_resource_routes(
+        resource_url=auth_settings.resource_server_url,
+        authorization_servers=[auth_settings.issuer_url],
+        scopes_supported=SCOPES,
+    )
+    replacement = [discovery, *protected]
+    paths = {route.path for route in replacement}
+    mcp_app.router.routes[:] = replacement + [
+        route for route in mcp_app.router.routes if route.path not in paths
+    ]
     mcp_app.router.routes.insert(0, Route("/consent", provider.consent, methods=["GET", "POST"]))
     app = OAuthRequestGuard(mcp_app, provider.resource)
 else:
