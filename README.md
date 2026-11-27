@@ -1,131 +1,102 @@
 # Omnigent MCP
 
-An independent Model Context Protocol server for controlling Omnigent through its official REST API. It runs as a separate Docker service on the Silicon Valley host; it is not an n8n workflow and does not modify the Omnigent application code.
+A standalone, single-owner MCP server for connecting ChatGPT to Omnigent agents and execution hosts. It runs as an independent non-root Docker container. It does not require Supabase, a separate identity provider, an n8n workflow, or changes to the Omnigent application source.
 
 ## Architecture
 
-ChatGPT -> Supabase OAuth-protected MCP (Streamable HTTP) -> Omnigent MCP -> Omnigent REST API -> connected Hosts and Harnesses.
+ChatGPT -- HTTPS / OAuth authorization code + PKCE S256 --> Omnigent MCP -- Omnigent Device Authorization Grant / REST --> Omnigent agents and hosts.
 
-The MCP service joins the existing Docker networks:
-- `omnigent_omnigent_default` to reach the Omnigent API at `http://omnigent:8000`.
-- `traefik_default` to receive HTTPS traffic from Traefik.
+The embedded authorization server uses MCP SDK 2.3.0 protocol endpoints. SQLite persists hashed authorization codes and opaque tokens in the private data directory. Only one pre-registered confidential OAuth client is accepted; there is no public registration endpoint.
 
-No host port is published. Traefik routes `https://omnigent-mcp.qjai.org/mcp` to container port 8787.
+## Tools
 
-## MCP tools
+Read scope (`omnigent:read`): `get_profile`, `list_agents`, `list_hosts`, `list_sessions`, `get_session`, `get_history`, `list_child_sessions`.
 
-Read-only:
-- `list_agents` — list available Agents.
-- `list_hosts` — list connected execution Hosts.
-- `list_sessions` — list recent top-level sessions with pagination and search.
-- `get_session` — inspect status and runner readiness.
-- `get_history` — read paginated conversation items.
-- `list_child_sessions` — list sub-agent sessions.
+Write scope (`omnigent:write`): `create_session`, `send_message`, `interrupt_session`.
 
-Actions:
-- `create_session` — create a persistent session on an explicitly selected Agent and Host.
-- `send_message` — send a task or follow-up instruction.
-- `interrupt_session` — request cancellation of active work.
+A successful send or interrupt response means Omnigent accepted the request, not that execution completed. Poll session status and history to verify. No generic shell, arbitrary HTTP, filesystem, deletion, sharing, or admin tools are exposed.
 
-A successful send or interrupt response means Omnigent accepted the request, not that execution completed. Poll `get_session` and read `get_history` to verify the outcome. No generic shell, arbitrary HTTP, filesystem, deletion, sharing, or admin tools are exposed.
+## Deploy
 
-## Two independent authentication layers
+The included Compose file is configured for the Silicon Valley installation and its existing Docker networks:
+- `omnigent_omnigent_default`: REST API at `http://omnigent:8000`.
+- `traefik_default`: HTTPS routing to port 8787 without publishing a host port.
 
-### ChatGPT -> Omnigent MCP
+For a new installation, adjust the domain, network names, Traefik labels, issuer and resource together. The issuer is the HTTPS origin (no trailing slash), and the resource is exactly issuer + `/mcp`.
 
-The MCP server is a Supabase OAuth resource server:
-- Supabase OAuth 2.1 is the authorization server.
-- JWT signatures are verified against the project's public JWKS.
-- Issuer, expiry, authenticated role, exact resource audience, subject and OAuth client ID are checked.
-- The server-owned access policy grants individual tool scopes to an exact subject/client-ID pair.
-- An empty access policy denies every tool call.
+```sh
+cd /opt/omnigent-mcp
+# Only on first installation; preserve any existing data and configuration.
+cp -n .env.example .env
+chmod 600 .env
+sudo install -d -o 10001 -g 10001 -m 0700 data
+docker compose config --quiet
+docker compose build
+docker compose up -d --no-deps omnigent-mcp
+```
 
-The resource URL must be exactly:
+The service starts in a fail-closed unprovisioned state: discovery and health work, but no OAuth client or access token is accepted. Check:
 
-`https://omnigent-mcp.qjai.org/mcp`
+```sh
+curl -fsS https://omnigent-mcp.qjai.org/health
+curl -fsS https://omnigent-mcp.qjai.org/.well-known/oauth-authorization-server
+curl -fsS https://omnigent-mcp.qjai.org/.well-known/oauth-protected-resource/mcp
+```
 
-The Supabase Custom Access Token Hook must map the ChatGPT OAuth client ID to that resource audience. Do not reuse the old `mcp.qjai.org/mcp` audience for this endpoint.
+## Connect ChatGPT (one-time provisioning)
 
-The existing consent UI is hosted at `https://oauth.qjai.org`. Supabase Auth's global Site URL must point to that UI, and the Authorization URL Path must match its deployed route. This is a project-wide Auth setting: audit other sign-in, email confirmation and password-recovery redirects before changing it. Do not change it automatically.
+1. In ChatGPT's developer-mode app/connector creation UI, use MCP URL `https://omnigent-mcp.qjai.org/mcp` and OAuth authentication. Select the option to provide an existing OAuth client ID and secret.
+2. Copy the exact callback URI shown for this MCP connection. Do not assume the legacy shared URI or use a wildcard. This server accepts either the legacy shared ChatGPT callback or the connection-specific callback, **only when explicitly provisioned**.
+3. From a trusted interactive SSH terminal (not an agent, CI log, or chat), run:
 
-### Omnigent MCP -> Omnigent Server
+   ```sh
+   cd /opt/omnigent-mcp
+   docker compose exec omnigent-mcp python setup_oauth.py
+   docker compose restart omnigent-mcp
+   ```
 
-The service uses an Omnigent Device Authorization Grant, not an administrator password and not a long-lived admin API token.
+   Enter the exact callback URI and a new dedicated strong owner password. The script prints a generated client secret once. Store it securely and enter it directly into ChatGPT; the client ID is `omnigent-chatgpt`. Never paste the password, client secret or tokens into chat, logs, or GitHub. Client authentication uses `client_secret_post`.
+4. Complete the OAuth authorization in ChatGPT and enter the dedicated owner password on the consent page served by the MCP domain. Check the requested scopes before authorizing.
+5. Verify `get_profile` returns the local owner identity. Then verify Omnigent access using `list_hosts` after completing the separate device grant below.
 
-The running Omnigent server must have device authorization enabled with `OMNIGENT_DEVICE_GRANT_ENABLED=1`. This setting is currently disabled on the existing deployment and enabling it requires an Omnigent container restart. Do not restart the production Omnigent container without explicit approval.
+OAuth discovery, authorization, token exchange and revocation use the SDK. Access tokens last up to one hour. Refresh tokens rotate with an absolute 30-day family lifetime. Reuse of an old refresh token revokes its family; reconnect when authorization expires or is revoked. The owner config is mode 0600 and stored in `data/oauth-owner.json`; the SQLite database is mode 0600 and stored in `data/oauth.sqlite3`. Back up both only to protected storage. The password is Argon2id-hashed; the OAuth client secret is stored in the private config to support SDK client verification. Existing Supabase tokens are not accepted.
 
-The device flow is:
-1. The bootstrap command requests a device code.
-2. The operator opens the returned verification URL in the already-authenticated Omnigent browser and approves the client.
-3. The bootstrap command exchanges the approved device code for an access token and refresh token.
-4. Only the rotating refresh token is persisted, in a mode-0600 file under `./data`.
-5. The service refreshes access tokens automatically. If authorization is revoked or expires, the device flow must be repeated.
+## Omnigent API authorization (separate from ChatGPT)
 
-An optional shared device-client secret can be configured on both Omnigent and this service to restrict device authorization requests.
+Omnigent Device Authorization Grant is still required for real agent tools. If not enabled, set `OMNIGENT_DEVICE_GRANT_ENABLED=1` on the **Omnigent server** only during an approved maintenance window; restarting that service is a separate operation.
 
-## Local development
+```sh
+docker compose exec omnigent-mcp python bootstrap_device.py start
+# Open the printed verification URL in the authenticated Omnigent browser and approve it.
+docker compose exec omnigent-mcp python bootstrap_device.py poll
+docker compose restart omnigent-mcp
+```
 
-Python 3.11+:
+The MCP server stores the rotating Omnigent refresh token in its protected data directory; it does not store the Omnigent administrator password. The incoming ChatGPT OAuth tokens are not passed to Omnigent.
+
+## Upgrade and rollback
+
+For an existing deployment, preserve `.env`, `data/`, and any old access-policy configuration until the new version has been validated. The refactor does not modify the Supabase project or its global Auth settings. Old Supabase environment variables can be removed after verification; they are not used by the new server. Build and recreate only the MCP container. If rolling back, restore the previous code and its configuration, then rebuild and recreate only the MCP container.
+
+## Development and validation
 
 ```sh
 python3 -m venv .venv
 . .venv/bin/activate
 pip install -r requirements.txt pytest
-cp .env.example .env
-chmod 600 .env
+python -m pytest -q
 ```
 
-For unauthenticated local-only Inspector testing, set `MCP_AUTH_MODE=private` and `MCP_HOST=127.0.0.1`. Private mode refuses to bind to a non-loopback address.
+CI checks Python 3.11 and 3.12, the SDK's real HTTP OAuth endpoints, exact callbacks, PKCE, consent/CSRF, resource binding, code replay, token rotation/revocation, read/write scopes, persistence, and the REST client. These are automated local tests, not a claim that a live ChatGPT connector or Omnigent device grant has already been authorized.
 
-## Silicon Valley Docker deployment
+Private mode is available for local-only development (`MCP_AUTH_MODE=private`, `MCP_HOST=127.0.0.1`). Never expose it through a proxy.
 
-1. Clone this repository into `/opt/omnigent-mcp`.
-2. Copy `.env.example` to `.env`, set the Supabase project URL and resource URL, then chmod 600.
-3. Copy `config/access-policy.example.json` to `config/access-policy.json`. Leave `grants` empty until the ChatGPT OAuth client and user subject have been approved.
-4. Create the persistent data directory owned by UID/GID 10001:
-   `install -d -o 10001 -g 10001 -m 0700 data`.
-5. Validate and build:
-   `docker compose -f compose.yaml config`
-   `docker compose -f compose.yaml build`
-6. Start the independent MCP container:
-   `docker compose -f compose.yaml up -d`
-7. Verify `docker compose ps`, `/health`, Traefik routing and the protected-resource metadata endpoint.
-8. After the Omnigent device grant is enabled, run:
-   `docker compose exec omnigent-mcp python bootstrap_device.py start`
-   Open the returned verification URL and approve it in Omnigent, then run:
-   `docker compose exec omnigent-mcp python bootstrap_device.py poll`
-9. Complete the Supabase OAuth client-to-resource mapping and add the exact subject/client ID to `config/access-policy.json` with only the required scopes:
-   - `agents:read`
-   - `hosts:read`
-   - `sessions:read`
-   - `sessions:write`
-   - `sessions:cancel`
-10. Restart only the MCP container after access-policy changes.
+## Security
 
-## Environment variables
-
-See `.env.example`. Secrets and runtime state must never be committed. The Docker image excludes `.env`, `data/` and the production access-policy file.
-
-## Security properties
-
-- Non-root container, read-only root filesystem, no Linux capabilities, no-new-privileges.
-- No host port publishing; only Traefik reaches port 8787.
-- Dedicated Docker networks; Omnigent API traffic stays inside Docker.
-- Supabase JWT signature and exact resource-audience verification.
-- Exact subject/client-ID allowlist; no wildcard grants.
-- Separate read and write scopes.
-- Device refresh token stored only in a mode-0600 persistent file.
-- No arbitrary command execution or generic HTTP tool.
-
-## Current validation status
-
-- REST client, JWT verifier and access policy have unit tests.
-- GitHub Actions checks Python 3.11 and 3.12, imports the MCP server, and runs tests.
-- Live Omnigent device authorization, Supabase production consent, public DNS/TLS, and ChatGPT end-to-end connection are deployment-stage checks and are not claimed complete until verified.
+Non-root container, read-only root filesystem, no Linux capabilities, no-new-privileges, no host port publishing. Exact HTTPS issuer/resource/callback, a pre-registered confidential client, mandatory PKCE S256, explicit owner consent, CSRF protection, bounded OAuth bodies and rate-limited password checks. Token secrets remain separate from upstream Omnigent authorization. The design is intentionally single-owner, not a general-purpose multi-user identity provider.
 
 ## References
 
-- Omnigent Programmatic Usage: https://omnigent.ai/docs/programmatic
-- Omnigent v0.23.0 source: https://github.com/omnigent-ai/omnigent/tree/v0.23.0
-- Supabase OAuth Server: https://supabase.com/docs/guides/auth/oauth-server
-- OpenAI MCP server guide: https://developers.openai.com/plugins/build/mcp-server
+- OpenAI OAuth guidance: https://developers.openai.com/plugins/build/auth
+- MCP Python SDK: https://github.com/modelcontextprotocol/python-sdk/tree/v2.3.0
+- Omnigent v0.23.0: https://github.com/omnigent-ai/omnigent/tree/v0.23.0

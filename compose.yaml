@@ -12,14 +12,16 @@ services:
     environment:
       MCP_HOST: 0.0.0.0
       MCP_PORT: 8787
-      MCP_AUTH_MODE: supabase
+      MCP_AUTH_MODE: local-oauth
+      MCP_ISSUER_URL: https://omnigent-mcp.qjai.org
+      MCP_RESOURCE_URL: https://omnigent-mcp.qjai.org/mcp
+      MCP_OAUTH_DB: /data/oauth.sqlite3
+      MCP_OAUTH_CONFIG: /data/oauth-owner.json
       OMNIGENT_URL: http://omnigent:8000
       OMNIGENT_TOKEN_FILE: /data/device-token.json
       OMNIGENT_PENDING_FILE: /data/device-pending.json
-      ACCESS_POLICY_FILE: /config/access-policy.json
     volumes:
       - ./data:/data
-      - ./config/access-policy.json:/config/access-policy.json:ro
     networks:
       omnigent_internal:
         aliases:

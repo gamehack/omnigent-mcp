@@ -9,7 +9,7 @@ WORKDIR /app
 COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
-COPY access_policy.py supabase_auth.py client.py server.py bootstrap_device.py /app/
+COPY local_oauth.py setup_oauth.py client.py server.py bootstrap_device.py /app/
 
 RUN groupadd --system --gid 10001 app \
     && useradd --system --uid 10001 --gid 10001 --home-dir /nonexistent --shell /usr/sbin/nologin app \
