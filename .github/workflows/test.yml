@@ -29,7 +29,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt pytest
       - name: Compile Python sources
-        run: python -m compileall -q local_oauth.py setup_oauth.py client.py server.py bootstrap_device.py tests
+        run: python -m compileall -q business_api.py local_oauth.py setup_oauth.py client.py server.py bootstrap_device.py tests
       - name: Import private local MCP server
         env:
           MCP_AUTH_MODE: private
