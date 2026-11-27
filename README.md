@@ -14,7 +14,33 @@ Read scope (`omnigent:read`): `get_profile`, `list_agents`, `list_hosts`, `list_
 
 Write scope (`omnigent:write`): `create_session`, `send_message`, `interrupt_session`.
 
-A successful send or interrupt response means Omnigent accepted the request, not that execution completed. Poll session status and history to verify. No generic shell, arbitrary HTTP, filesystem, deletion, sharing, or admin tools are exposed.
+A successful send or interrupt response means Omnigent accepted the request, not that execution completed. Poll session status and history to verify.
+
+### Full business API catalog (v0.3.0)
+
+The 10 core tools remain stable. Five additional tools expose a source-derived allowlist of 212 candidate HTTP operations in 11 domains, without loading hundreds of individual MCP tool definitions:
+
+| Tool | Purpose |
+|---|---|
+| list_api_operations | Paginated search by domain, name, read/write mode; optional live availability check |
+| describe_api_operation | Live upstream request schemas, parameters and multipart contract |
+| get_api_coverage | Compare the catalog with live OpenAPI and list explicit exclusions |
+| read_api_operation | Execute an allowlisted GET with read scope |
+| write_api_operation | Execute an allowlisted mutation with write scope and explicit user authorization |
+
+Domains: agents, hosts/harnesses, sessions, scheduled tasks/workflows, projects, files/resources, GitHub, MCP/skills/extensions, permissions/policies/elicitation, memory/comments/inbox, and server/settings/integrations.
+
+Example workflow:
+1. Call list_api_operations with domain "automation" and search "scheduled_task".
+2. Call describe_api_operation with operation_id "create_scheduled_task".
+3. After explicit user authorization, call write_api_operation with that operation ID, confirm=true and a body matching the returned schema.
+4. Use read_api_operation with operation_id "get_scheduled_task" or "list_scheduled_task_runs" and the required path arguments to verify the result.
+
+The upstream OpenAPI 3.1 document must be accessible with the authenticated Omnigent account. The catalog is pinned to v0.23.0 source; each operation must also be advertised by the running server. A route in the catalog is not a promise that the installed feature flags, runner, host, or account support it. Use get_api_coverage(live=true) to see actual advertised coverage. Unknown routes are never automatically callable.
+
+The adapter validates path parameters and documented schemas, bounds requests/results, supports reviewed multipart uploads (2 MiB decoded total), and returns JSON, text or base64 data. GETs and writes have separate scopes; mutations are never automatically retried. Sensitive structured response fields are redacted. Some request fields manually parsed by the upstream server are described rather than schema-modeled; final validation is performed by Omnigent.
+
+Explicit exclusions include arbitrary shell/RPC/MCP proxies, token vending, secret credential entry, sign-in bearer links, native UI/browser callbacks, OAuth callbacks, terminal and tunnel transport, and unbounded SSE/WebSocket streams. Manage credentials and provider OAuth in the native UI, and use snapshots/history rather than long-lived streams. The exclusions are documented in operations.json. This is business-management coverage, not a raw unrestricted API proxy.
 
 ## Deploy
 
@@ -87,7 +113,7 @@ pip install -r requirements.txt pytest
 python -m pytest -q
 ```
 
-CI checks Python 3.11 and 3.12, the SDK's real HTTP OAuth endpoints, exact callbacks, PKCE, consent/CSRF, resource binding, code replay, token rotation/revocation, read/write scopes, persistence, and the REST client. These are automated local tests, not a claim that a live ChatGPT connector or Omnigent device grant has already been authorized.
+CI checks Python 3.11 and 3.12, the SDK's real HTTP OAuth endpoints, exact callbacks, PKCE, consent/CSRF, resource binding, code replay, token rotation/revocation, read/write scopes, persistence, REST client, catalog integrity, schema validation, path injection rejection, multipart, response size limits, and permission boundaries. These are automated local tests, not a claim that a live ChatGPT connector or Omnigent device grant has already been authorized.
 
 Private mode is available for local-only development (`MCP_AUTH_MODE=private`, `MCP_HOST=127.0.0.1`). Never expose it through a proxy.
 
