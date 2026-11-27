@@ -111,7 +111,8 @@ def test_discovery_and_unauthenticated_denial(env):
     assert meta["issuer"] == prm["authorization_servers"][0]
     assert prm["resource"] == RESOURCE
     assert meta["code_challenge_methods_supported"] == ["S256"]
-    assert "client_secret_post" in meta["token_endpoint_auth_methods_supported"]
+    assert meta["token_endpoint_auth_methods_supported"] == ["client_secret_post"]
+    assert set(prm["scopes_supported"]) == {"omnigent:read", "omnigent:write"}
     assert not meta.get("registration_endpoint")
     assert http.post("/register", json={}).status_code in (404, 405)
     response = rpc(http)
