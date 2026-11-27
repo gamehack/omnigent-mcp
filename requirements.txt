@@ -1,5 +1,5 @@
-mcp>=2.3,<3
+mcp==2.3.0
 httpx>=0.27,<1
-PyJWT[crypto]>=2.10,<3
+argon2-cffi>=23.1,<26
 uvicorn>=0.30,<1
 starlette>=0.37,<1
